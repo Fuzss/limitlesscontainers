@@ -25,7 +25,7 @@ public class LimitlessContainerSynchronizer implements ContainerSynchronizer {
 
     @Override
     public void sendInitialData(AbstractContainerMenu container, NonNullList<ItemStack> items, ItemStack carriedItem, int[] is) {
-        LimitlessContainers.NETWORK.sendTo(new ClientboundContainerSetContentMessage(container.containerId, container.incrementStateId(), items, carriedItem), this.player);
+        LimitlessContainers.NETWORK.sendTo(this.player, new ClientboundContainerSetContentMessage(container.containerId, container.incrementStateId(), items, carriedItem).toClientboundMessage());
 
         for (int i = 0; i < is.length; ++i) {
             this.broadcastDataValue(container, i, is[i]);
@@ -34,12 +34,12 @@ public class LimitlessContainerSynchronizer implements ContainerSynchronizer {
 
     @Override
     public void sendSlotChange(AbstractContainerMenu container, int slot, ItemStack itemStack) {
-        LimitlessContainers.NETWORK.sendTo(new ClientboundContainerSetSlotMessage(container.containerId, container.incrementStateId(), slot, itemStack), this.player);
+        LimitlessContainers.NETWORK.sendTo(this.player, new ClientboundContainerSetSlotMessage(container.containerId, container.incrementStateId(), slot, itemStack).toClientboundMessage());
     }
 
     @Override
     public void sendCarriedChange(AbstractContainerMenu containerMenu, ItemStack stack) {
-        LimitlessContainers.NETWORK.sendTo(new ClientboundContainerSetSlotMessage(-1, containerMenu.incrementStateId(), -1, stack), this.player);
+        LimitlessContainers.NETWORK.sendTo(this.player, new ClientboundContainerSetSlotMessage(-1, containerMenu.incrementStateId(), -1, stack).toClientboundMessage());
     }
 
     @Override

@@ -1,55 +1,39 @@
 package fuzs.limitlesscontainers.impl.network;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessByteBufUtils;
-import fuzs.puzzleslib.api.network.v2.MessageV2;
+import fuzs.puzzleslib.api.network.v2.WritableMessage;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
+public class ClientboundContainerSetContentMessage implements WritableMessage<ClientboundContainerSetContentMessage> {
+    private final ClientboundContainerSetContentPacket packet;
 
-public class ClientboundContainerSetContentMessage implements MessageV2<ClientboundContainerSetContentMessage> {
-    private ClientboundContainerSetContentPacket packet;
-
-    public ClientboundContainerSetContentMessage() {
-
+    public ClientboundContainerSetContentMessage(int containerId, int stateId, NonNullList<ItemStack> items, ItemStack carriedItem) {
+        this.packet = new ClientboundContainerSetContentPacket(containerId, stateId, items, carriedItem);
     }
 
-    public ClientboundContainerSetContentMessage(int i, int j, NonNullList<ItemStack> nonNullList, ItemStack itemStack) {
-        this.packet = new ClientboundContainerSetContentPacket(i, j, nonNullList, itemStack);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf friendlyByteBuf) {
-        this.packet = new ClientboundContainerSetContentPacket(friendlyByteBuf) {
-            private final NonNullList<ItemStack> items;
-            private final ItemStack carriedItem;
-
-            {
-                this.items = friendlyByteBuf.readCollection(NonNullList::createWithCapacity, LimitlessByteBufUtils::readItem);
-                this.carriedItem = LimitlessByteBufUtils.readItem(friendlyByteBuf);
-            }
-
-            @Override
-            public List<ItemStack> getItems() {
-                return this.items;
-            }
-
-            @Override
-            public ItemStack getCarriedItem() {
-                return this.carriedItem;
-            }
-        };
+    public ClientboundContainerSetContentMessage(FriendlyByteBuf friendlyByteBuf) {
+        ClientboundContainerSetContentPacket packet = ClientboundContainerSetContentPacket.STREAM_CODEC.decode(
+                (RegistryFriendlyByteBuf) friendlyByteBuf);
+        NonNullList<ItemStack> items = friendlyByteBuf.readCollection(NonNullList::createWithCapacity,
+                LimitlessByteBufUtils::readItem
+        );
+        ItemStack carriedItem = LimitlessByteBufUtils.readItem(friendlyByteBuf);
+        this.packet = new ClientboundContainerSetContentPacket(packet.getContainerId(), packet.getStateId(), items,
+                carriedItem
+        );
     }
 
     @Override
-    public void write(FriendlyByteBuf buffer) {
-        this.packet.write(buffer);
-        buffer.writeCollection(this.packet.getItems(), LimitlessByteBufUtils::writeItem);
-        LimitlessByteBufUtils.writeItem(buffer, this.packet.getCarriedItem());
+    public void write(FriendlyByteBuf friendlyByteBuf) {
+        ClientboundContainerSetContentPacket.STREAM_CODEC.encode((RegistryFriendlyByteBuf) friendlyByteBuf, this.packet);
+        friendlyByteBuf.writeCollection(this.packet.getItems(), LimitlessByteBufUtils::writeItem);
+        LimitlessByteBufUtils.writeItem(friendlyByteBuf, this.packet.getCarriedItem());
     }
 
     @Override

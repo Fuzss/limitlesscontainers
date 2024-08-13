@@ -32,7 +32,7 @@ public class AdvancedItemRenderer {
     /**
      * Pretty much copied from {@link GuiGraphics#renderItemDecorations(Font, ItemStack, int, int, String)}.
      */
-    public static void renderItemDecorations(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int i, int j, @Nullable String string) {
+    public static void renderItemDecorations(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String string) {
         if (!itemStack.isEmpty()) {
             guiGraphics.pose().pushPose();
             if (itemStack.getCount() != 1 || string != null) {
@@ -42,8 +42,8 @@ public class AdvancedItemRenderer {
                 guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
                 float scale = Math.min(1.0F, 16.0F / font.width(stackCount));
                 guiGraphics.pose().scale(scale, scale, 1.0F);
-                int posX = (int) ((i + 17) / scale - font.width(stackCount));
-                int posY = (int) ((j + font.lineHeight * 2) / scale - font.lineHeight);
+                int posX = (int) ((x + 17) / scale - font.width(stackCount));
+                int posY = (int) ((y + font.lineHeight * 2) / scale - font.lineHeight);
                 guiGraphics.drawString(font, string2, posX, posY, 16777215, true);
             }
 
@@ -52,19 +52,19 @@ public class AdvancedItemRenderer {
             if (itemStack.isBarVisible()) {
                 int k = itemStack.getBarWidth();
                 int l = itemStack.getBarColor();
-                m = i + 2;
-                n = j + 13;
+                m = x + 2;
+                n = y + 13;
                 guiGraphics.fill(RenderType.guiOverlay(), m, n, m + 13, n + 2, -16777216);
                 guiGraphics.fill(RenderType.guiOverlay(), m, n, m + k, n + 1, l | -16777216);
             }
 
             Minecraft minecraft = Minecraft.getInstance();
             LocalPlayer localPlayer = minecraft.player;
-            float f = localPlayer == null ? 0.0F : localPlayer.getCooldowns().getCooldownPercent(itemStack.getItem(), minecraft.getFrameTime());
+            float f = localPlayer == null ? 0.0F : localPlayer.getCooldowns().getCooldownPercent(itemStack.getItem(), minecraft.getTimer().getGameTimeDeltaPartialTick(true));
             if (f > 0.0F) {
-                m = j + Mth.floor(16.0F * (1.0F - f));
+                m = y + Mth.floor(16.0F * (1.0F - f));
                 n = m + Mth.ceil(16.0F * f);
-                guiGraphics.fill(RenderType.guiOverlay(), i, m, i + 16, n, Integer.MAX_VALUE);
+                guiGraphics.fill(RenderType.guiOverlay(), x, m, x + 16, n, Integer.MAX_VALUE);
             }
 
             guiGraphics.pose().popPose();

@@ -1,44 +1,34 @@
 package fuzs.limitlesscontainers.impl.network;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessByteBufUtils;
-import fuzs.puzzleslib.api.network.v2.MessageV2;
+import fuzs.puzzleslib.api.network.v2.WritableMessage;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public class ClientboundContainerSetSlotMessage implements MessageV2<ClientboundContainerSetSlotMessage> {
-    private ClientboundContainerSetSlotPacket packet;
+public class ClientboundContainerSetSlotMessage implements WritableMessage<ClientboundContainerSetSlotMessage> {
+    private final ClientboundContainerSetSlotPacket packet;
 
-    public ClientboundContainerSetSlotMessage() {
-
+    public ClientboundContainerSetSlotMessage(int containerId, int stateId, int slot, ItemStack itemStack) {
+        this.packet = new ClientboundContainerSetSlotPacket(containerId, stateId, slot, itemStack);
     }
 
-    public ClientboundContainerSetSlotMessage(int i, int j, int k, ItemStack itemStack) {
-        this.packet = new ClientboundContainerSetSlotPacket(i, j, k, itemStack);
-    }
-
-    @Override
-    public void read(FriendlyByteBuf friendlyByteBuf) {
-        this.packet = new ClientboundContainerSetSlotPacket(friendlyByteBuf) {
-            private final ItemStack itemStack;
-
-            {
-                this.itemStack = LimitlessByteBufUtils.readItem(friendlyByteBuf);
-            }
-
-            @Override
-            public ItemStack getItem() {
-                return this.itemStack;
-            }
-        };
+    public ClientboundContainerSetSlotMessage(FriendlyByteBuf friendlyByteBuf) {
+        ClientboundContainerSetSlotPacket packet = ClientboundContainerSetSlotPacket.STREAM_CODEC.decode(
+                (RegistryFriendlyByteBuf) friendlyByteBuf);
+        ItemStack itemStack = LimitlessByteBufUtils.readItem(friendlyByteBuf);
+        this.packet = new ClientboundContainerSetSlotPacket(packet.getContainerId(), packet.getStateId(),
+                packet.getSlot(), itemStack
+        );
     }
 
     @Override
-    public void write(FriendlyByteBuf buffer) {
-        this.packet.write(buffer);
-        LimitlessByteBufUtils.writeItem(buffer, this.packet.getItem());
+    public void write(FriendlyByteBuf friendlyByteBuf) {
+        ClientboundContainerSetSlotPacket.STREAM_CODEC.encode((RegistryFriendlyByteBuf) friendlyByteBuf, this.packet);
+        LimitlessByteBufUtils.writeItem(friendlyByteBuf, this.packet.getItem());
     }
 
     @Override

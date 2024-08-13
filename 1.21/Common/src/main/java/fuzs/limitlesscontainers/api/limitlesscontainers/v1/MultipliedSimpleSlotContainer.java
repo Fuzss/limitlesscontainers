@@ -1,5 +1,6 @@
 package fuzs.limitlesscontainers.api.limitlesscontainers.v1;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,12 +18,12 @@ public class MultipliedSimpleSlotContainer extends MultipliedSimpleContainer {
     }
 
     @Override
-    public void fromTag(ListTag containerNbt) {
-        LimitlessContainerUtils.loadAllItems(containerNbt, this::setItem, this.getContainerSize());
+    public void fromTag(ListTag containerNbt, HolderLookup.Provider registries) {
+        LimitlessContainerUtils.loadAllItems(containerNbt, this::setItem, this.getContainerSize(), registries);
     }
 
     @Override
-    public ListTag createTag() {
-        return LimitlessContainerUtils.saveAllItems(this::getItem, this.getContainerSize());
+    public ListTag createTag(HolderLookup.Provider registries) {
+        return LimitlessContainerUtils.saveAllItems(this::getItem, this.getContainerSize(), registries);
     }
 }

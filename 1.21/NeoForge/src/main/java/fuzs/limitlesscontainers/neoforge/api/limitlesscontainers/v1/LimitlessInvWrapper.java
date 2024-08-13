@@ -2,15 +2,13 @@ package fuzs.limitlesscontainers.neoforge.api.limitlesscontainers.v1;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerUtils;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedContainer;
-import fuzs.puzzleslib.neoforge.api.init.v3.capability.NeoForgeCapabilityHelperV2;
+import fuzs.puzzleslib.neoforge.api.init.v3.capability.NeoForgeCapabilityHelper;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -24,8 +22,7 @@ public class LimitlessInvWrapper extends InvWrapper {
     }
 
     @Override
-    @NotNull
-    public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
 
         ItemStack stackInSlot = this.getInv().getItem(slot);
@@ -37,7 +34,7 @@ public class LimitlessInvWrapper extends InvWrapper {
                             this.getSlotLimit(slot)
                     )) return stack;
 
-            if (!ItemHandlerHelper.canItemStacksStack(stack, stackInSlot)) return stack;
+            if (!ItemStack.isSameItemSameComponents(stack, stackInSlot)) return stack;
 
             if (!this.getInv().canPlaceItem(slot, stack)) return stack;
 
@@ -97,7 +94,7 @@ public class LimitlessInvWrapper extends InvWrapper {
 
     @SafeVarargs
     public static <T extends BlockEntity> void registerLimitlessBlockEntityContainer(Function<T, MultipliedContainer> containerProvider, Holder<? extends BlockEntityType<? extends T>>... blockEntityTypes) {
-        NeoForgeCapabilityHelperV2.registerBlockEntity((T blockEntity, @Nullable Direction direction) -> {
+        NeoForgeCapabilityHelper.registerBlockEntity((T blockEntity, @Nullable Direction direction) -> {
             return new LimitlessInvWrapper(containerProvider.apply(blockEntity));
         }, blockEntityTypes);
     }

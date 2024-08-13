@@ -6,6 +6,7 @@ import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSimpleConta
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSlot;
 import fuzs.limitlesscontainers.impl.LimitlessContainers;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
+import fuzs.puzzleslib.api.container.v1.ContainerMenuHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,29 +28,14 @@ public class LimitlessChestMenu extends LimitlessContainerMenu {
         this.container = container;
         container.startOpen(inventory.player);
         this.addContainerSlots(container);
-        this.addInventorySlots(inventory);
+        ContainerMenuHelper.addInventorySlots(this, inventory, 103 + (this.containerRows - 4) * 18);
     }
 
     private void addContainerSlots(MultipliedContainer container) {
         for (int l = 0; l < this.containerRows; ++l) {
             for (int m = 0; m < 9; ++m) {
-                this.addSlot(new MultipliedSlot(container, m + l * 9, 8 + m * 18, 18 + 1 + l * 18));
+                this.addSlot(new MultipliedSlot(container, m + l * 9, 8 + m * 18, 18 + l * 18));
             }
-        }
-    }
-
-    private void addInventorySlots(Inventory inventory) {
-
-        int containerRowHeight = (this.containerRows - 4) * 18;
-
-        for(int j = 0; j < 3; ++j) {
-            for(int k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(inventory, k + j * 9 + 9, 8 + k * 18, 103 + j * 18 + containerRowHeight));
-            }
-        }
-
-        for(int j = 0; j < 9; ++j) {
-            this.addSlot(new Slot(inventory, j, 8 + j * 18, 161 + containerRowHeight));
         }
     }
 
@@ -62,7 +48,7 @@ public class LimitlessChestMenu extends LimitlessContainerMenu {
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack itemStack2 = slot.getItem();
             itemStack = itemStack2.copy();
             if (index < this.containerRows * 9) {

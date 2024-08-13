@@ -1,9 +1,11 @@
 package fuzs.limitlesscontainers.api.limitlesscontainers.v1;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -24,8 +26,8 @@ import java.util.function.IntFunction;
 
 public class LimitlessContainerUtils {
 
-    public static CompoundTag saveAllItems(CompoundTag tag, NonNullList<ItemStack> items, boolean saveEmpty) {
-        ListTag list = saveAllItems(items::get, items.size());
+    public static CompoundTag saveAllItems(CompoundTag tag, NonNullList<ItemStack> items, boolean saveEmpty, HolderLookup.Provider registries) {
+        ListTag list = saveAllItems(items::get, items.size(), registries);
 
         if (!list.isEmpty() || saveEmpty) {
             tag.put("Items", list);
@@ -34,7 +36,7 @@ public class LimitlessContainerUtils {
         return tag;
     }
 
-    public static ListTag saveAllItems(IntFunction<ItemStack> extractor, int containerSize) {
+    public static ListTag saveAllItems(IntFunction<ItemStack> extractor, int containerSize, HolderLookup.Provider registries) {
         ListTag list = new ListTag();
 
         for (int i = 0; i < containerSize; ++i) {
@@ -42,25 +44,26 @@ public class LimitlessContainerUtils {
             if (!itemStack.isEmpty()) {
                 CompoundTag compoundTag = new CompoundTag();
                 compoundTag.putByte("Slot", (byte) i);
-                itemStack.save(compoundTag);
                 compoundTag.putInt("Count", itemStack.getCount());
-                list.add(compoundTag);
+                // use single item, count is saved separately and would otherwise fail when exceeding 99
+                Tag tag = ItemStack.SINGLE_ITEM_CODEC.encode(itemStack, registries.createSerializationContext(NbtOps.INSTANCE), compoundTag).getOrThrow();
+                list.add(tag);
             }
         }
 
         return list;
     }
 
-    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> items) {
-        loadAllItems(tag.getList("Items", Tag.TAG_COMPOUND), items::set, items.size());
+    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> items, HolderLookup.Provider registries) {
+        loadAllItems(tag.getList("Items", Tag.TAG_COMPOUND), items::set, items.size(), registries);
     }
 
-    public static void loadAllItems(ListTag list, BiConsumer<Integer, ItemStack> consumer, int containerSize) {
+    public static void loadAllItems(ListTag list, BiConsumer<Integer, ItemStack> consumer, int containerSize, HolderLookup.Provider registries) {
         for (int i = 0; i < list.size(); ++i) {
             CompoundTag compoundTag = list.getCompound(i);
             int j = compoundTag.getByte("Slot") & 255;
             if (j < containerSize) {
-                ItemStack itemStack = ItemStack.of(compoundTag);
+                ItemStack itemStack = ItemStack.parseOptional(registries, compoundTag);
                 itemStack.setCount(compoundTag.getInt("Count"));
                 consumer.accept(j, itemStack);
             }
@@ -120,7 +123,7 @@ public class LimitlessContainerUtils {
 
     public static boolean canItemQuickReplace(@Nullable Slot slot, ItemStack stack, boolean stackSizeMatters) {
         boolean bl = slot == null || !slot.hasItem();
-        if (!bl && ItemStack.isSameItemSameTags(stack, slot.getItem())) {
+        if (!bl && ItemStack.isSameItemSameComponents(stack, slot.getItem())) {
             return slot.getItem().getCount() + (stackSizeMatters ? 0 : stack.getCount()) <= slot.getMaxStackSize(stack);
         } else {
             return bl;

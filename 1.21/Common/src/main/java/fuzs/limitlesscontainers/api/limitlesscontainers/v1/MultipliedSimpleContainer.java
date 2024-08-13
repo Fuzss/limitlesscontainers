@@ -28,7 +28,7 @@ public class MultipliedSimpleContainer extends SimpleContainer implements Multip
     public boolean canAddItem(ItemStack stack) {
         for (int i = 0; i < this.getContainerSize(); i++) {
             ItemStack itemStack = this.getItem(i);
-            if (itemStack.isEmpty() || ItemStack.isSameItemSameTags(itemStack, stack) && itemStack.getCount() < LimitlessContainerUtils.getMaxStackSizeOrDefault(itemStack, this.getStackSizeMultiplier())) {
+            if (itemStack.isEmpty() || ItemStack.isSameItemSameComponents(itemStack, stack) && itemStack.getCount() < LimitlessContainerUtils.getMaxStackSizeOrDefault(itemStack, this.getStackSizeMultiplier())) {
                 return true;
             }
         }

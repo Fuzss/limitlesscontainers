@@ -11,10 +11,9 @@ public class LimitlessContainersClient implements ClientModConstructor {
 
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
-        if (ModLoaderEnvironment.INSTANCE.isDevelopmentEnvironment()) {
-            context.registerMenuScreen(BuiltInRegistries.MENU.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER),
-                    LimitlessChestScreen.containerRows(6)
-            );
-        }
+        if (!ModLoaderEnvironment.INSTANCE.isDevelopmentEnvironment()) return;
+        context.registerMenuScreen(BuiltInRegistries.MENU.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER),
+                LimitlessChestScreen.containerRows(6)
+        );
     }
 }

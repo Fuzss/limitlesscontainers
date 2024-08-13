@@ -303,7 +303,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+    public void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
         if (slot != null) {
             slotId = slot.index;
         }
@@ -335,7 +335,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                 }
             }
 
-            LimitlessContainers.NETWORK.sendToServer(new ServerboundContainerClickMessage(containerId, abstractContainerMenu.getStateId(), slotId, mouseButton, clickType, abstractContainerMenu.getCarried().copy(), int2ObjectMap));
+            LimitlessContainers.NETWORK.sendToServer(new ServerboundContainerClickMessage(containerId, abstractContainerMenu.getStateId(), slotId, mouseButton, clickType, abstractContainerMenu.getCarried().copy(), int2ObjectMap).toServerboundMessage());
         }
     }
 }

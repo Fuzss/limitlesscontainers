@@ -136,14 +136,14 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
                                 slot.onTake(player, itemStack22);
                             });
                         } else if (slot.mayPlace(itemStack5)) {
-                            if (ItemStack.isSameItemSameTags(itemStack, itemStack5)) {
+                            if (ItemStack.isSameItemSameComponents(itemStack, itemStack5)) {
                                 int n = clickAction == ClickAction.PRIMARY ? itemStack5.getCount() : 1;
                                 this.setCarried(slot.safeInsert(itemStack5, n));
                             } else if (itemStack5.getCount() <= slot.getMaxStackSize(itemStack5)) {
                                 this.setCarried(itemStack);
                                 slot.set(itemStack5);
                             }
-                        } else if (ItemStack.isSameItemSameTags(itemStack, itemStack5)) {
+                        } else if (ItemStack.isSameItemSameComponents(itemStack, itemStack5)) {
                             Optional<ItemStack> optional2 = slot.tryRemove(itemStack.getCount(), slot.getMaxStackSize(itemStack5) - itemStack5.getCount(), player);
                             optional2.ifPresent(itemStack2x -> {
                                 itemStack5.grow(itemStack2x.getCount());
@@ -277,7 +277,7 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
 
                 Slot slot = this.slots.get(i);
                 ItemStack itemStack = slot.getItem();
-                if (!itemStack.isEmpty() && ItemStack.isSameItemSameTags(stack, itemStack)) {
+                if (!itemStack.isEmpty() && ItemStack.isSameItemSameComponents(stack, itemStack)) {
                     int j = itemStack.getCount() + stack.getCount();
                     if (j <= slot.getMaxStackSize(stack)) {
                         stack.setCount(0);

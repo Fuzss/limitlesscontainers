@@ -5,8 +5,9 @@ import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedContainer;
 import fuzs.limitlesscontainers.impl.LimitlessContainers;
 import fuzs.limitlesscontainers.impl.world.inventory.LimitlessChestMenu;
 import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
-import fuzs.puzzleslib.api.container.v1.ContainerImpl;
+import fuzs.puzzleslib.api.container.v1.ListBackedContainer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -28,11 +29,12 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     private final ContainerOpenersCounter openersCounter = new NetherChestOpenersCounter();
     private final ChestLidController chestLidController = new ChestLidController();
     public final MultipliedContainer container = new NetherChestContainer();
-    private NonNullList<ItemStack> items;
+    private final NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 
     public LimitlessChestBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), blockPos, blockState);
-        this.items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
+        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), blockPos,
+                blockState
+        );
     }
 
     @Override
@@ -56,18 +58,18 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        this.items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
-        LimitlessContainerUtils.loadAllItems(tag, this.items);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.items.clear();
+        LimitlessContainerUtils.loadAllItems(tag, this.items, registries);
 
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.remove("Items");
-        LimitlessContainerUtils.saveAllItems(tag, this.items, true);
+        LimitlessContainerUtils.saveAllItems(tag, this.items, true, registries);
     }
 
     @Override
@@ -81,24 +83,30 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         }
     }
 
-    private class NetherChestContainer implements ContainerImpl, MultipliedContainer {
+    private class NetherChestContainer implements ListBackedContainer, MultipliedContainer {
 
         @Override
-        public NonNullList<ItemStack> getItems() {
+        public NonNullList<ItemStack> getContainerItems() {
             return LimitlessChestBlockEntity.this.items;
         }
 
         @Override
         public void startOpen(Player player) {
             if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
-                LimitlessChestBlockEntity.this.openersCounter.incrementOpeners(player, LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(), LimitlessChestBlockEntity.this.getBlockState());
+                LimitlessChestBlockEntity.this.openersCounter.incrementOpeners(player,
+                        LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(),
+                        LimitlessChestBlockEntity.this.getBlockState()
+                );
             }
         }
 
         @Override
         public void stopOpen(Player player) {
             if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
-                LimitlessChestBlockEntity.this.openersCounter.decrementOpeners(player, LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(), LimitlessChestBlockEntity.this.getBlockState());
+                LimitlessChestBlockEntity.this.openersCounter.decrementOpeners(player,
+                        LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(),
+                        LimitlessChestBlockEntity.this.getBlockState()
+                );
             }
         }
 
@@ -117,12 +125,16 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
 
         @Override
         protected void onOpen(Level level, BlockPos pos, BlockState state) {
-            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
+            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5,
+                    SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F
+            );
         }
 
         @Override
         protected void onClose(Level level, BlockPos pos, BlockState state) {
-            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5, SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
+            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5,
+                    SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F
+            );
         }
 
         @Override
