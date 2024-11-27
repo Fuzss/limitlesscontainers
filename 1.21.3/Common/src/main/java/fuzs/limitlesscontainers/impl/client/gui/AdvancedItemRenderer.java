@@ -60,7 +60,7 @@ public class AdvancedItemRenderer {
 
             Minecraft minecraft = Minecraft.getInstance();
             LocalPlayer localPlayer = minecraft.player;
-            float f = localPlayer == null ? 0.0F : localPlayer.getCooldowns().getCooldownPercent(itemStack.getItem(), minecraft.getTimer().getGameTimeDeltaPartialTick(true));
+            float f = localPlayer == null ? 0.0F : localPlayer.getCooldowns().getCooldownPercent(itemStack, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
             if (f > 0.0F) {
                 m = y + Mth.floor(16.0F * (1.0F - f));
                 n = m + Mth.ceil(16.0F * f);

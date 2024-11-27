@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,11 +39,11 @@ public class LimitlessChestScreen<T extends AbstractContainerMenu> extends Limit
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(CONTAINER_BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth,
-                this.containerRows * 18 + 17
+        guiGraphics.blit(RenderType::guiTextured, CONTAINER_BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth,
+                this.containerRows * 18 + 17, 256, 256
         );
-        guiGraphics.blit(CONTAINER_BACKGROUND, this.leftPos, this.topPos + this.containerRows * 18 + 17, 0, 126,
-                this.imageWidth, 96
+        guiGraphics.blit(RenderType::guiTextured, CONTAINER_BACKGROUND, this.leftPos, this.topPos + this.containerRows * 18 + 17, 0, 126,
+                this.imageWidth, 96, 256, 256
         );
     }
 }

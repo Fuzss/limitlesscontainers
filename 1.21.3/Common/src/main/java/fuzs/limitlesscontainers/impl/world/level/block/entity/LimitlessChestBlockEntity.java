@@ -32,7 +32,7 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     private final NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 
     public LimitlessChestBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), blockPos,
+        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), blockPos,
                 blockState
         );
     }

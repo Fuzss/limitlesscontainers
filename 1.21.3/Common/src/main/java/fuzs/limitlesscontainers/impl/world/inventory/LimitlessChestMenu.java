@@ -23,7 +23,7 @@ public class LimitlessChestMenu extends LimitlessContainerMenu {
     }
 
     public LimitlessChestMenu(int containerId, Inventory inventory, MultipliedContainer container) {
-        super(BuiltInRegistries.MENU.get(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), containerId);
+        super(BuiltInRegistries.MENU.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), containerId);
         checkContainerSize(container, this.containerRows * 9);
         this.container = container;
         container.startOpen(inventory.player);

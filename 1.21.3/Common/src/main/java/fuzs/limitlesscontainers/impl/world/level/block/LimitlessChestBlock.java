@@ -75,7 +75,7 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
 
     @Override
     public BlockEntityType<? extends LimitlessChestBlockEntity> getBlockEntityType() {
-        return (BlockEntityType<? extends LimitlessChestBlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.get(
+        return (BlockEntityType<? extends LimitlessChestBlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(
                 LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER);
     }
 }

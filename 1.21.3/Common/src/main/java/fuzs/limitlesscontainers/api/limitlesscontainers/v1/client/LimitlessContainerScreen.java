@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -61,8 +62,8 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
 
     @Override
     protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        int i = slot.x;
-        int j = slot.y;
+        int posX = slot.x;
+        int posY = slot.y;
         ItemStack itemStack = slot.getItem();
         boolean bl = false;
         boolean bl2 = slot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
@@ -99,18 +100,18 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
             if (pair != null) {
                 TextureAtlasSprite textureAtlasSprite = this.minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
                 RenderSystem.setShaderTexture(0, textureAtlasSprite.atlasLocation());
-                guiGraphics.blit(i, j, 0, 16, 16, textureAtlasSprite);
+                guiGraphics.blitSprite(RenderType::guiTextured, textureAtlasSprite, posX, posY, 16, 16);
                 bl2 = true;
             }
         }
 
         if (!bl2) {
             if (bl) {
-                guiGraphics.fill(i, j, i + 16, j + 16, -2130706433);
+                guiGraphics.fill(posX, posY, posX + 16, posY + 16, -2130706433);
             }
 
-            guiGraphics.renderItem(this.minecraft.player, itemStack, i, j, slot.x + slot.y * this.imageWidth);
-            AdvancedItemRenderer.renderItemDecorations(guiGraphics, this.font, itemStack, i, j, string);
+            guiGraphics.renderItem(this.minecraft.player, itemStack, posX, posY, slot.x + slot.y * this.imageWidth);
+            AdvancedItemRenderer.renderItemDecorations(guiGraphics, this.font, itemStack, posX, posY, string);
         }
 
         guiGraphics.pose().popPose();
@@ -146,7 +147,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        Slot slot = this.findSlot(mouseX, mouseY);
+        Slot slot = this.getHoveredSlot(mouseX, mouseY);
         ItemStack itemStack = this.menu.getCarried();
         if (this.clickedSlot != null && this.minecraft.options.touchscreen().get()) {
             if (button == 0 || button == 1) {
@@ -187,7 +188,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        Slot slot = this.findSlot(mouseX, mouseY);
+        Slot slot = this.getHoveredSlot(mouseX, mouseY);
         int i = this.leftPos;
         int j = this.topPos;
         boolean bl = this.hasClickedOutside(mouseX, mouseY, i, j, button);
