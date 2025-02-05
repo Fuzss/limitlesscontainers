@@ -7,10 +7,10 @@ import fuzs.limitlesscontainers.impl.world.inventory.LimitlessChestMenu;
 import fuzs.limitlesscontainers.impl.world.level.block.LimitlessChestBlock;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
 import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
 import fuzs.puzzleslib.api.network.v3.NetworkHandler;
-import fuzs.puzzleslib.impl.PuzzlesLib;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -41,7 +41,7 @@ public class LimitlessContainers implements ModConstructor {
     }
 
     private static void setupDevelopmentEnvironment() {
-        if (!PuzzlesLib.isDevelopmentEnvironment()) return;
+        if (!ModLoaderEnvironment.INSTANCE.isDevelopmentEnvironment(MOD_ID)) return;
         RegistryManager registryManager = RegistryManager.from(MOD_ID);
         Holder.Reference<Block> limitlessChestBlock = registryManager.registerBlock(LIMITLESS_CHEST_IDENTIFIER.getPath(),
                 LimitlessChestBlock::new,
