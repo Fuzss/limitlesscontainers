@@ -1,7 +1,6 @@
 package fuzs.limitlesscontainers.impl.world.level.block;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerSynchronizer;
-import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerUtils;
 import fuzs.limitlesscontainers.impl.LimitlessContainers;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.block.v1.entity.TickingEntityBlock;
@@ -10,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -29,15 +29,8 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            if (level.getBlockEntity(pos) instanceof LimitlessChestBlockEntity blockEntity) {
-                LimitlessContainerUtils.dropContents(level, pos, blockEntity.container);
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, level, pos, newState, isMoving);
-        }
+    protected void affectNeighborsAfterRemoval(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(blockState, serverLevel, blockPos);
     }
 
     @Override
@@ -46,8 +39,7 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
             MenuProvider menuProvider = this.getMenuProvider(state, level, pos);
             if (menuProvider != null) {
                 LimitlessContainerSynchronizer.setSynchronizerFor((ServerPlayer) player,
-                        player.openMenu(menuProvider).orElse(-1)
-                );
+                        player.openMenu(menuProvider).orElse(-1));
             }
             return InteractionResult.CONSUME;
         } else {

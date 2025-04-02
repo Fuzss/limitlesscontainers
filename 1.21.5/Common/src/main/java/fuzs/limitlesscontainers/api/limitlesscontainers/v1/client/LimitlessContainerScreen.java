@@ -1,11 +1,12 @@
 package fuzs.limitlesscontainers.api.limitlesscontainers.v1.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Shorts;
+import com.google.common.primitives.SignedBytes;
 import com.mojang.blaze3d.platform.InputConstants;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerUtils;
 import fuzs.limitlesscontainers.impl.LimitlessContainers;
 import fuzs.limitlesscontainers.impl.client.gui.AdvancedItemRenderer;
-import fuzs.limitlesscontainers.impl.network.client.ServerboundContainerClickMessage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
@@ -13,13 +14,15 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.HashedStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -320,7 +323,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
         this.handleInventoryMouseClick(this.menu.containerId, slotId, mouseButton, type, this.minecraft.player);
     }
 
-    private void handleInventoryMouseClick(int containerId, int slotId, int mouseButton, ClickType clickType, Player player) {
+    private void handleInventoryMouseClick(int containerId, int slotId, int mouseButton, ClickType clickType, LocalPlayer player) {
         AbstractContainerMenu abstractContainerMenu = player.containerMenu;
         if (containerId != abstractContainerMenu.containerId) {
             LimitlessContainers.LOGGER.warn("Ignoring click in mismatching container. Click in {}, player has {}.",
@@ -336,23 +339,26 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
             }
 
             abstractContainerMenu.clicked(slotId, mouseButton, clickType, player);
-            Int2ObjectMap<ItemStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
+            Int2ObjectMap<HashedStack> int2ObjectMap = new Int2ObjectOpenHashMap<>();
 
-            for (int j = 0; j < i; ++j) {
+            for (int j = 0; j < i; j++) {
                 ItemStack itemStack = list.get(j);
                 ItemStack itemStack2 = nonNullList.get(j).getItem();
                 if (!ItemStack.matches(itemStack, itemStack2)) {
-                    int2ObjectMap.put(j, itemStack2.copy());
+                    int2ObjectMap.put(j,
+                            HashedStack.create(itemStack2, player.connection.decoratedHashOpsGenenerator()));
                 }
             }
 
-            LimitlessContainers.NETWORK.sendMessage(new ServerboundContainerClickMessage(containerId,
+            HashedStack hashedStack = HashedStack.create(abstractContainerMenu.getCarried(),
+                    player.connection.decoratedHashOpsGenenerator());
+            player.connection.send(new ServerboundContainerClickPacket(containerId,
                     abstractContainerMenu.getStateId(),
-                    slotId,
-                    mouseButton,
+                    Shorts.checkedCast(slotId),
+                    SignedBytes.checkedCast(mouseButton),
                     clickType,
-                    abstractContainerMenu.getCarried().copy(),
-                    int2ObjectMap).toServerboundMessage());
+                    int2ObjectMap,
+                    hashedStack));
         }
     }
 }

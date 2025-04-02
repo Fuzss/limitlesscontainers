@@ -16,13 +16,13 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
     }
 
     public void setActualSynchronizer(ContainerSynchronizer synchronizer) {
-        super.setSynchronizer(synchronizer);
+//        super.setSynchronizer(synchronizer);
     }
 
-    @Override
-    public void setSynchronizer(ContainerSynchronizer synchronizer) {
-        // Prevent vanilla from setting the default ServerPlayer synchronizer, we are using our own LimitlessContainerSynchronizer which must be set later.
-    }
+//    @Override
+//    public void setSynchronizer(ContainerSynchronizer synchronizer) {
+//        // Prevent vanilla from setting the default ServerPlayer synchronizer, we are using our own LimitlessContainerSynchronizer which must be set later.
+//    }
 
     @Override
     protected void doClick(int mouseX, int mouseY, ClickType clickType, Player player) {

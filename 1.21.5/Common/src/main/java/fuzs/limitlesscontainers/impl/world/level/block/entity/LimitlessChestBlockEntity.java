@@ -32,9 +32,9 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     private final NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 
     public LimitlessChestBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), blockPos,
-                blockState
-        );
+        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER),
+                blockPos,
+                blockState);
     }
 
     @Override
@@ -73,10 +73,18 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos blockPos, BlockState blockState) {
+        if (this.level != null) {
+            LimitlessContainerUtils.dropContents(this.level, blockPos, this.container);
+        }
+    }
+
+    @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
         return new LimitlessChestMenu(containerId, inventory, this.container);
     }
 
+    @Override
     public void recheckOpen() {
         if (!this.remove) {
             this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
@@ -94,9 +102,9 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         public void startOpen(Player player) {
             if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
                 LimitlessChestBlockEntity.this.openersCounter.incrementOpeners(player,
-                        LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(),
-                        LimitlessChestBlockEntity.this.getBlockState()
-                );
+                        LimitlessChestBlockEntity.this.getLevel(),
+                        LimitlessChestBlockEntity.this.getBlockPos(),
+                        LimitlessChestBlockEntity.this.getBlockState());
             }
         }
 
@@ -104,9 +112,9 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         public void stopOpen(Player player) {
             if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
                 LimitlessChestBlockEntity.this.openersCounter.decrementOpeners(player,
-                        LimitlessChestBlockEntity.this.getLevel(), LimitlessChestBlockEntity.this.getBlockPos(),
-                        LimitlessChestBlockEntity.this.getBlockState()
-                );
+                        LimitlessChestBlockEntity.this.getLevel(),
+                        LimitlessChestBlockEntity.this.getBlockPos(),
+                        LimitlessChestBlockEntity.this.getBlockState());
             }
         }
 
@@ -125,16 +133,26 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
 
         @Override
         protected void onOpen(Level level, BlockPos pos, BlockState state) {
-            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5,
-                    SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F
-            );
+            level.playSound(null,
+                    (double) pos.getX() + 0.5,
+                    (double) pos.getY() + 0.5,
+                    (double) pos.getZ() + 0.5,
+                    SoundEvents.ENDER_CHEST_OPEN,
+                    SoundSource.BLOCKS,
+                    0.5F,
+                    level.random.nextFloat() * 0.1F + 0.9F);
         }
 
         @Override
         protected void onClose(Level level, BlockPos pos, BlockState state) {
-            level.playSound(null, (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5,
-                    SoundEvents.ENDER_CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F
-            );
+            level.playSound(null,
+                    (double) pos.getX() + 0.5,
+                    (double) pos.getY() + 0.5,
+                    (double) pos.getZ() + 0.5,
+                    SoundEvents.ENDER_CHEST_CLOSE,
+                    SoundSource.BLOCKS,
+                    0.5F,
+                    level.random.nextFloat() * 0.1F + 0.9F);
         }
 
         @Override

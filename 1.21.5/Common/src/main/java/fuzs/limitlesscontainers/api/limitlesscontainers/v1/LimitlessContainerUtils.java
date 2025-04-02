@@ -46,7 +46,9 @@ public class LimitlessContainerUtils {
                 compoundTag.putByte("Slot", (byte) i);
                 compoundTag.putInt("Count", itemStack.getCount());
                 // use single item, count is saved separately and would otherwise fail when exceeding 99
-                Tag tag = ItemStack.SINGLE_ITEM_CODEC.encode(itemStack, registries.createSerializationContext(NbtOps.INSTANCE), compoundTag).getOrThrow();
+                Tag tag = ItemStack.SINGLE_ITEM_CODEC.encode(itemStack,
+                        registries.createSerializationContext(NbtOps.INSTANCE),
+                        compoundTag).getOrThrow();
                 list.add(tag);
             }
         }
@@ -55,16 +57,16 @@ public class LimitlessContainerUtils {
     }
 
     public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> items, HolderLookup.Provider registries) {
-        loadAllItems(tag.getList("Items", Tag.TAG_COMPOUND), items::set, items.size(), registries);
+        loadAllItems(tag.getListOrEmpty("Items"), items::set, items.size(), registries);
     }
 
     public static void loadAllItems(ListTag list, BiConsumer<Integer, ItemStack> consumer, int containerSize, HolderLookup.Provider registries) {
         for (int i = 0; i < list.size(); ++i) {
-            CompoundTag compoundTag = list.getCompound(i);
-            int j = compoundTag.getByte("Slot") & 255;
+            CompoundTag compoundTag = list.getCompoundOrEmpty(i);
+            int j = compoundTag.getByteOr("Slot", (byte) 0) & 255;
             if (j < containerSize) {
-                ItemStack itemStack = ItemStack.parseOptional(registries, compoundTag);
-                itemStack.setCount(compoundTag.getInt("Count"));
+                ItemStack itemStack = ItemStack.parse(registries, compoundTag).orElse(ItemStack.EMPTY);
+                itemStack.setCount(compoundTag.getIntOr("Count", 0));
                 consumer.accept(j, itemStack);
             }
         }
@@ -103,7 +105,8 @@ public class LimitlessContainerUtils {
     }
 
     public static OptionalInt getMaxStackSize(ItemStack stack, int stackSizeMultiplier) {
-        return stack.getMaxStackSize() > 1 || !stack.isDamageableItem() ? OptionalInt.of(stack.getMaxStackSize() * stackSizeMultiplier) : OptionalInt.empty();
+        return stack.getMaxStackSize() > 1 || !stack.isDamageableItem() ?
+                OptionalInt.of(stack.getMaxStackSize() * stackSizeMultiplier) : OptionalInt.empty();
     }
 
     public static void getQuickCraftSlotCount(Set<Slot> dragSlots, int dragMode, ItemStack stack, int slotStackSize, Slot slot) {
@@ -144,7 +147,8 @@ public class LimitlessContainerUtils {
             for (int j = 0; j < container.getContainerSize(); ++j) {
                 ItemStack itemStack = container.getItem(j);
                 if (!itemStack.isEmpty()) {
-                    f += (float) itemStack.getCount() / Math.min(container.getMaxStackSize(), getMaxStackSizeOrDefault(itemStack, container.getStackSizeMultiplier()));
+                    f += (float) itemStack.getCount() / Math.min(container.getMaxStackSize(),
+                            getMaxStackSizeOrDefault(itemStack, container.getStackSizeMultiplier()));
                     ++i;
                 }
             }
