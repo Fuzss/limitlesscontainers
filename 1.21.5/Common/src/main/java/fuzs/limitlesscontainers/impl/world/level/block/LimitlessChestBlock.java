@@ -1,17 +1,14 @@
 package fuzs.limitlesscontainers.impl.world.level.block;
 
-import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerSynchronizer;
 import fuzs.limitlesscontainers.impl.LimitlessContainers;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.block.v1.entity.TickingEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EnderChestBlock;
@@ -36,11 +33,7 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide) {
-            MenuProvider menuProvider = this.getMenuProvider(state, level, pos);
-            if (menuProvider != null) {
-                LimitlessContainerSynchronizer.setSynchronizerFor((ServerPlayer) player,
-                        player.openMenu(menuProvider).orElse(-1));
-            }
+            player.openMenu(this.getMenuProvider(state, level, pos));
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.SUCCESS;

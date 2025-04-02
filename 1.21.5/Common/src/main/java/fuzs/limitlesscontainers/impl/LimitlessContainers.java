@@ -1,13 +1,10 @@
 package fuzs.limitlesscontainers.impl;
 
-import fuzs.limitlesscontainers.impl.network.ClientboundContainerSetContentMessage;
-import fuzs.limitlesscontainers.impl.network.ClientboundContainerSetSlotMessage;
 import fuzs.limitlesscontainers.impl.world.inventory.LimitlessChestMenu;
 import fuzs.limitlesscontainers.impl.world.level.block.LimitlessChestBlock;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
-import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
 import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
 import net.minecraft.core.Holder;
@@ -43,13 +40,6 @@ public class LimitlessContainers implements ModConstructor {
                 LimitlessChestBlockEntity::new,
                 () -> Collections.singleton(limitlessChestBlock.value()));
         registryManager.registerMenuType(LIMITLESS_CHEST_IDENTIFIER.getPath(), () -> LimitlessChestMenu::new);
-    }
-
-    @Override
-    public void onRegisterPayloadTypes(PayloadTypesContext context) {
-        context.playToClient(ClientboundContainerSetSlotMessage.class, ClientboundContainerSetSlotMessage.STREAM_CODEC);
-        context.playToClient(ClientboundContainerSetContentMessage.class,
-                ClientboundContainerSetContentMessage.STREAM_CODEC);
     }
 
     public static ResourceLocation id(String path) {

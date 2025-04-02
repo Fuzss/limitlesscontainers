@@ -22,58 +22,48 @@ public class AdvancedItemRenderer {
     private static final DecimalFormat DECIMAL_FORMAT = Util.make(new DecimalFormat(), decimalFormat -> {
         decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
     });
-    private static final NavigableMap<Integer, Character> NUMBER_SUFFIXES = ImmutableSortedMap.<Integer, Character>naturalOrder().put(1_000, 'K').put(1_000_000, 'M').put(1_000_000_000, 'B').build();
+    private static final NavigableMap<Integer, Character> NUMBER_SUFFIXES = ImmutableSortedMap.<Integer, Character>naturalOrder()
+            .put(1_000, 'K')
+            .put(1_000_000, 'M')
+            .put(1_000_000_000, 'B')
+            .build();
 
     public static Optional<Component> getStackSizeComponent(ItemStack stack) {
         Map.Entry<Integer, Character> entry = NUMBER_SUFFIXES.floorEntry(stack.getCount());
-        return entry == null ? Optional.empty() : Optional.of(Component.literal(DECIMAL_FORMAT.format(stack.getCount())).withStyle(ChatFormatting.GRAY));
+        return entry == null ? Optional.empty() :
+                Optional.of(Component.literal(DECIMAL_FORMAT.format(stack.getCount())).withStyle(ChatFormatting.GRAY));
     }
 
     /**
-     * Pretty much copied from {@link GuiGraphics#renderItemDecorations(Font, ItemStack, int, int, String)}.
+     * @see GuiGraphics#renderItemDecorations(Font, ItemStack, int, int, String)
      */
-    public static void renderItemDecorations(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String string) {
+    public static void renderItemDecorations(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String text) {
         if (!itemStack.isEmpty()) {
             guiGraphics.pose().pushPose();
-            if (itemStack.getCount() != 1 || string != null) {
-                String string2 = shortenValue(getCountFromString(string).orElse(itemStack.getCount()));
-                Style style = getStyleFromString(string);
-                Component stackCount = Component.literal(string2).withStyle(style);
-                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                float scale = Math.min(1.0F, 16.0F / font.width(stackCount));
-                guiGraphics.pose().scale(scale, scale, 1.0F);
-                int posX = (int) ((x + 17) / scale - font.width(stackCount));
-                int posY = (int) ((y + font.lineHeight * 2) / scale - font.lineHeight);
-                guiGraphics.drawString(font, string2, posX, posY, 16777215, true);
-            }
-
-            int m;
-            int n;
-            if (itemStack.isBarVisible()) {
-                int k = itemStack.getBarWidth();
-                int l = itemStack.getBarColor();
-                m = x + 2;
-                n = y + 13;
-                guiGraphics.fill(RenderType.guiOverlay(), m, n, m + 13, n + 2, -16777216);
-                guiGraphics.fill(RenderType.guiOverlay(), m, n, m + k, n + 1, l | -16777216);
-            }
-
-            Minecraft minecraft = Minecraft.getInstance();
-            LocalPlayer localPlayer = minecraft.player;
-            float f = localPlayer == null ? 0.0F : localPlayer.getCooldowns().getCooldownPercent(itemStack, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
-            if (f > 0.0F) {
-                m = y + Mth.floor(16.0F * (1.0F - f));
-                n = m + Mth.ceil(16.0F * f);
-                guiGraphics.fill(RenderType.guiOverlay(), x, m, x + 16, n, Integer.MAX_VALUE);
-            }
-
+            guiGraphics.renderItemBar(itemStack, x, y);
+            renderItemCount(guiGraphics, font, itemStack, x, y, text);
+            guiGraphics.renderItemCooldown(itemStack, x, y);
             guiGraphics.pose().popPose();
         }
     }
 
-    private static String shortenValue(int value) {
-        Map.Entry<Integer, Character> entry = NUMBER_SUFFIXES.floorEntry(value);
-        return entry == null ? String.valueOf(value) : String.valueOf(value / entry.getKey()) + entry.getValue();
+    /**
+     * @see GuiGraphics#renderItemCount(Font, ItemStack, int, int, String)
+     */
+    private static void renderItemCount(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String text) {
+        if (itemStack.getCount() != 1 || text != null) {
+            String string2 = shortenValue(getCountFromString(text).orElse(itemStack.getCount()));
+            Style style = getStyleFromString(text);
+            Component stackCount = Component.literal(string2).withStyle(style);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
+            float scale = Math.min(1.0F, 16.0F / font.width(stackCount));
+            guiGraphics.pose().scale(scale, scale, 1.0F);
+            int posX = (int) ((x + 17) / scale - font.width(stackCount));
+            int posY = (int) ((y + font.lineHeight * 2) / scale - font.lineHeight);
+            guiGraphics.drawString(font, string2, posX, posY, -1, true);
+            guiGraphics.pose().popPose();
+        }
     }
 
     private static OptionalInt getCountFromString(@Nullable String text) {
@@ -88,6 +78,11 @@ public class AdvancedItemRenderer {
             }
         }
         return OptionalInt.empty();
+    }
+
+    private static String shortenValue(int value) {
+        Map.Entry<Integer, Character> entry = NUMBER_SUFFIXES.floorEntry(value);
+        return entry == null ? String.valueOf(value) : String.valueOf(value / entry.getKey()) + entry.getValue();
     }
 
     private static Style getStyleFromString(@Nullable String text) {

@@ -26,3 +26,6 @@ transitive-accessible   field   net/minecraft/client/gui/screens/inventory/Abstr
 transitive-extendable   method  net/minecraft/client/gui/screens/inventory/AbstractContainerScreen  renderFloatingItem  (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V
 transitive-extendable   method  net/minecraft/client/gui/screens/inventory/AbstractContainerScreen  renderSlot  (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V
 accessible  method  net/minecraft/client/gui/screens/inventory/AbstractContainerScreen  onMouseClickAction  (Lnet/minecraft/world/inventory/Slot;Lnet/minecraft/world/inventory/ClickType;)V
+accessible  method  net/minecraft/world/inventory/Slot  onSwapCraft (I)V
+accessible	method	net/minecraft/client/gui/GuiGraphics    renderItemCooldown	(Lnet/minecraft/world/item/ItemStack;II)V
+accessible	method	net/minecraft/client/gui/GuiGraphics	renderItemBar	(Lnet/minecraft/world/item/ItemStack;II)V

@@ -7,10 +7,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -109,19 +112,13 @@ public class LimitlessContainerUtils {
                 OptionalInt.of(stack.getMaxStackSize() * stackSizeMultiplier) : OptionalInt.empty();
     }
 
-    public static void getQuickCraftSlotCount(Set<Slot> dragSlots, int dragMode, ItemStack stack, int slotStackSize, Slot slot) {
-        switch (dragMode) {
-            case 0:
-                stack.setCount(Mth.floor((float) stack.getCount() / (float) dragSlots.size()));
-                break;
-            case 1:
-                stack.setCount(1);
-                break;
-            case 2:
-                stack.setCount(slot.getMaxStackSize(stack));
-        }
-
-        stack.grow(slotStackSize);
+    public static int getQuickCraftPlaceCount(Set<Slot> slots, int dragMode, ItemStack itemStack, Slot slot) {
+        return switch (dragMode) {
+            case 0 -> Mth.floor((float) itemStack.getCount() / slots.size());
+            case 1 -> 1;
+            case 2 -> slot.getMaxStackSize(itemStack);
+            default -> itemStack.getCount();
+        };
     }
 
     public static boolean canItemQuickReplace(@Nullable Slot slot, ItemStack stack, boolean stackSizeMatters) {
@@ -158,14 +155,24 @@ public class LimitlessContainerUtils {
         }
     }
 
-    public static void placeItemBackInPlayerInventory(Player player, ItemStack itemStack) {
-        while (itemStack.getCount() > itemStack.getMaxStackSize()) {
-            player.getInventory().placeItemBackInInventory(itemStack.split(itemStack.getMaxStackSize()));
+    public static void dropOrPlaceInInventory(Player player, ItemStack itemStack) {
+        boolean bl = player.isRemoved() && player.getRemovalReason() != Entity.RemovalReason.CHANGED_DIMENSION;
+        boolean bl2 = player instanceof ServerPlayer serverPlayer && serverPlayer.hasDisconnected();
+        if (bl || bl2) {
+            drop(player, itemStack, false);
+        } else if (player instanceof ServerPlayer) {
+            placeItemBackInInventory(player.getInventory(), itemStack);
         }
-        player.getInventory().placeItemBackInInventory(itemStack);
     }
 
-    public static void dropPlayerItem(Player player, ItemStack itemStack, boolean includeThrowerName) {
+    public static void placeItemBackInInventory(Inventory inventory, ItemStack itemStack) {
+        while (itemStack.getCount() > itemStack.getMaxStackSize()) {
+            inventory.placeItemBackInInventory(itemStack.split(itemStack.getMaxStackSize()));
+        }
+        inventory.placeItemBackInInventory(itemStack);
+    }
+
+    public static void drop(Player player, ItemStack itemStack, boolean includeThrowerName) {
         while (itemStack.getCount() > itemStack.getMaxStackSize()) {
             player.drop(itemStack.split(itemStack.getMaxStackSize()), includeThrowerName);
         }
