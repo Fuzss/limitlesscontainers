@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EnderChestBlock;
@@ -33,7 +34,10 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide) {
-            player.openMenu(this.getMenuProvider(state, level, pos));
+            MenuProvider menuProvider = this.getMenuProvider(state, level, pos);
+            if (menuProvider != null) {
+                player.openMenu(menuProvider);
+            }
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.SUCCESS;
