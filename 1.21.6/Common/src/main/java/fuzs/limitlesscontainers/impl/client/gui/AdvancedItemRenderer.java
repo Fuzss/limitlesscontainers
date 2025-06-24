@@ -1,16 +1,13 @@
 package fuzs.limitlesscontainers.impl.client.gui;
 
 import com.google.common.collect.ImmutableSortedMap;
+import fuzs.limitlesscontainers.impl.services.ClientAbstractions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,11 +36,12 @@ public class AdvancedItemRenderer {
      */
     public static void renderItemDecorations(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String text) {
         if (!itemStack.isEmpty()) {
-            guiGraphics.pose().pushPose();
+            guiGraphics.pose().pushMatrix();
             guiGraphics.renderItemBar(itemStack, x, y);
             renderItemCount(guiGraphics, font, itemStack, x, y, text);
             guiGraphics.renderItemCooldown(itemStack, x, y);
-            guiGraphics.pose().popPose();
+            guiGraphics.pose().popMatrix();
+            ClientAbstractions.INSTANCE.renderItemOverlay(guiGraphics, font, itemStack, x, y);
         }
     }
 
@@ -52,17 +50,14 @@ public class AdvancedItemRenderer {
      */
     private static void renderItemCount(GuiGraphics guiGraphics, Font font, ItemStack itemStack, int x, int y, @Nullable String text) {
         if (itemStack.getCount() != 1 || text != null) {
-            String string2 = shortenValue(getCountFromString(text).orElse(itemStack.getCount()));
+            String string = shortenValue(getCountFromString(text).orElse(itemStack.getCount()));
             Style style = getStyleFromString(text);
-            Component stackCount = Component.literal(string2).withStyle(style);
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
+            Component stackCount = Component.literal(string).withStyle(style);
             float scale = Math.min(1.0F, 16.0F / font.width(stackCount));
-            guiGraphics.pose().scale(scale, scale, 1.0F);
+            guiGraphics.pose().scale(scale, scale);
             int posX = (int) ((x + 17) / scale - font.width(stackCount));
             int posY = (int) ((y + font.lineHeight * 2) / scale - font.lineHeight);
-            guiGraphics.drawString(font, string2, posX, posY, -1, true);
-            guiGraphics.pose().popPose();
+            guiGraphics.drawString(font, string, posX, posY, -1, true);
         }
     }
 

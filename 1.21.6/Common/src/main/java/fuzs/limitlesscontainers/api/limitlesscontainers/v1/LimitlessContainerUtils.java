@@ -1,78 +1,57 @@
 package fuzs.limitlesscontainers.api.limitlesscontainers.v1;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fuzs.puzzleslib.api.container.v1.ContainerSerializationHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
+import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.IntFunction;
 
 public class LimitlessContainerUtils {
+    /**
+     * @see ItemStack#SINGLE_ITEM_CODEC
+     */
+    public static final MapCodec<ItemStack> ITEM_STACK_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Item.CODEC.fieldOf("id").forGetter(ItemStack::getItemHolder),
+            ExtraCodecs.POSITIVE_INT.fieldOf("Count").forGetter(ItemStack::getCount),
+            DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY)
+                    .forGetter(ItemStack::getComponentsPatch)).apply(instance, ItemStack::new));
+    /**
+     * @see ItemStackWithSlot#CODEC
+     */
+    public static final Codec<ItemStackWithSlot> ITEM_STACK_WITH_SLOT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ExtraCodecs.UNSIGNED_BYTE.fieldOf("Slot").orElse(0).forGetter(ItemStackWithSlot::slot),
+            ITEM_STACK_CODEC.forGetter(ItemStackWithSlot::stack)).apply(instance, ItemStackWithSlot::new));
 
-    public static CompoundTag saveAllItems(CompoundTag tag, NonNullList<ItemStack> items, boolean saveEmpty, HolderLookup.Provider registries) {
-        ListTag list = saveAllItems(items::get, items.size(), registries);
-
-        if (!list.isEmpty() || saveEmpty) {
-            tag.put("Items", list);
-        }
-
-        return tag;
+    public static void saveAllItems(ValueOutput valueOutput, NonNullList<ItemStack> itemStacks) {
+        ContainerSerializationHelper.storeAsSlots(itemStacks, valueOutput.list("Items", ITEM_STACK_WITH_SLOT_CODEC));
     }
 
-    public static ListTag saveAllItems(IntFunction<ItemStack> extractor, int containerSize, HolderLookup.Provider registries) {
-        ListTag list = new ListTag();
-
-        for (int i = 0; i < containerSize; ++i) {
-            ItemStack itemStack = extractor.apply(i);
-            if (!itemStack.isEmpty()) {
-                CompoundTag compoundTag = new CompoundTag();
-                compoundTag.putByte("Slot", (byte) i);
-                compoundTag.putInt("Count", itemStack.getCount());
-                // use single item, count is saved separately and would otherwise fail when exceeding 99
-                Tag tag = ItemStack.SINGLE_ITEM_CODEC.encode(itemStack,
-                        registries.createSerializationContext(NbtOps.INSTANCE),
-                        compoundTag).getOrThrow();
-                list.add(tag);
-            }
-        }
-
-        return list;
-    }
-
-    public static void loadAllItems(CompoundTag tag, NonNullList<ItemStack> items, HolderLookup.Provider registries) {
-        loadAllItems(tag.getListOrEmpty("Items"), items::set, items.size(), registries);
-    }
-
-    public static void loadAllItems(ListTag list, BiConsumer<Integer, ItemStack> consumer, int containerSize, HolderLookup.Provider registries) {
-        for (int i = 0; i < list.size(); ++i) {
-            CompoundTag compoundTag = list.getCompoundOrEmpty(i);
-            int j = compoundTag.getByteOr("Slot", (byte) 0) & 255;
-            if (j < containerSize) {
-                ItemStack itemStack = ItemStack.parse(registries, compoundTag).orElse(ItemStack.EMPTY);
-                itemStack.setCount(compoundTag.getIntOr("Count", 0));
-                consumer.accept(j, itemStack);
-            }
-        }
+    public static void loadAllItems(ValueInput valueInput, NonNullList<ItemStack> itemStacks) {
+        ContainerSerializationHelper.fromSlots(itemStacks, valueInput.listOrEmpty("Items", ITEM_STACK_WITH_SLOT_CODEC));
     }
 
     public static void dropContents(Level level, BlockPos pos, Container inventory) {

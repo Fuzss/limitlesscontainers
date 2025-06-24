@@ -39,7 +39,7 @@ public class LimitlessContainers implements ModConstructor {
         registryManager.registerBlockEntityType(LIMITLESS_CHEST_IDENTIFIER.getPath(),
                 LimitlessChestBlockEntity::new,
                 () -> Collections.singleton(limitlessChestBlock.value()));
-        registryManager.registerMenuType(LIMITLESS_CHEST_IDENTIFIER.getPath(), () -> LimitlessChestMenu::new);
+        registryManager.registerMenuType(LIMITLESS_CHEST_IDENTIFIER.getPath(), LimitlessChestMenu::new);
     }
 
     public static ResourceLocation id(String path) {

@@ -36,9 +36,8 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
             } else if (this.quickcraftStatus == 1) {
                 Slot slot = this.slots.get(slotId);
                 ItemStack itemStack = this.getCarried();
-                if (LimitlessContainerUtils.canItemQuickReplace(slot, itemStack, true)
-                        && slot.mayPlace(itemStack)
-                        && (this.quickcraftType == 2 || itemStack.getCount() > this.quickcraftSlots.size())
+                if (LimitlessContainerUtils.canItemQuickReplace(slot, itemStack, true) && slot.mayPlace(itemStack) && (
+                        this.quickcraftType == 2 || itemStack.getCount() > this.quickcraftSlots.size())
                         && this.canDragTo(slot)) {
                     this.quickcraftSlots.add(slot);
                 }
@@ -61,15 +60,16 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
 
                     for (Slot slot2 : this.quickcraftSlots) {
                         ItemStack itemStack3 = this.getCarried();
-                        if (slot2 != null
-                                && LimitlessContainerUtils.canItemQuickReplace(slot2, itemStack3, true)
-                                && slot2.mayPlace(itemStack3)
-                                && (this.quickcraftType == 2 || itemStack3.getCount() >= this.quickcraftSlots.size())
-                                && this.canDragTo(slot2)) {
+                        if (slot2 != null && LimitlessContainerUtils.canItemQuickReplace(slot2, itemStack3, true)
+                                && slot2.mayPlace(itemStack3) && (this.quickcraftType == 2
+                                || itemStack3.getCount() >= this.quickcraftSlots.size()) && this.canDragTo(slot2)) {
                             int l = slot2.hasItem() ? slot2.getItem().getCount() : 0;
 //                            int m = Math.min(itemStack2.getMaxStackSize(), slot2.getMaxStackSize(itemStack2));
                             int m = slot2.getMaxStackSize(itemStack2);
-                            int n = Math.min(LimitlessContainerUtils.getQuickCraftPlaceCount(this.quickcraftSlots, this.quickcraftType, itemStack2, slot2) + l, m);
+                            int n = Math.min(LimitlessContainerUtils.getQuickCraftPlaceCount(this.quickcraftSlots,
+                                    this.quickcraftType,
+                                    itemStack2,
+                                    slot2) + l, m);
                             k -= n - l;
                             slot2.setByPlayer(itemStack2.copyWithCount(n));
                         }
@@ -85,7 +85,8 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
             }
         } else if (this.quickcraftStatus != 0) {
             this.resetQuickCraft();
-        } else if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1)) {
+        } else if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0
+                || button == 1)) {
             ClickAction clickAction = button == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
             if (slotId == -999) {
                 if (!this.getCarried().isEmpty()) {
@@ -128,7 +129,8 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
                         }
                     } else if (slot.mayPickup(player)) {
                         if (itemStack4.isEmpty()) {
-                            int o = clickAction == ClickAction.PRIMARY ? itemStack.getCount() : (itemStack.getCount() + 1) / 2;
+                            int o = clickAction == ClickAction.PRIMARY ? itemStack.getCount() :
+                                    (itemStack.getCount() + 1) / 2;
                             Optional<ItemStack> optional = slot.tryRemove(o, Integer.MAX_VALUE, player);
                             optional.ifPresent(itemStackx -> {
                                 this.setCarried(itemStackx);
@@ -144,7 +146,9 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
                             }
                         } else if (ItemStack.isSameItemSameComponents(itemStack, itemStack4)) {
 //                            Optional<ItemStack> optional2 = slot.tryRemove(itemStack.getCount(), itemStack4.getMaxStackSize() - itemStack4.getCount(), player);
-                            Optional<ItemStack> optional2 = slot.tryRemove(itemStack.getCount(), slot.getMaxStackSize(itemStack4) - itemStack4.getCount(), player);
+                            Optional<ItemStack> optional2 = slot.tryRemove(itemStack.getCount(),
+                                    slot.getMaxStackSize(itemStack4) - itemStack4.getCount(),
+                                    player);
                             optional2.ifPresent(itemStack2x -> {
                                 itemStack4.grow(itemStack2x.getCount());
                                 slot.onTake(player, itemStack2x);
@@ -162,37 +166,48 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
             if (!itemStack5.isEmpty() || !itemStack.isEmpty()) {
                 if (itemStack5.isEmpty()) {
                     if (slot.mayPickup(player)) {
-                        inventory.setItem(button, itemStack);
-                        slot.onSwapCraft(itemStack.getCount());
-                        slot.setByPlayer(ItemStack.EMPTY);
+//                        inventory.setItem(button, itemStack);
+//                        slot.onSwapCraft(itemStack.getCount());
+//                        slot.setByPlayer(ItemStack.EMPTY);
+                        int maxStackSize = inventory.getMaxStackSize(itemStack);
+                        if (itemStack.getCount() > maxStackSize) {
+                            inventory.setItem(button, itemStack.split(maxStackSize));
+                            slot.onSwapCraft(maxStackSize);
+                        } else {
+                            inventory.setItem(button, itemStack);
+                            slot.onSwapCraft(itemStack.getCount());
+                            slot.setByPlayer(ItemStack.EMPTY);
+                        }
                         slot.onTake(player, itemStack);
                     }
                 } else if (itemStack.isEmpty()) {
                     if (slot.mayPlace(itemStack5)) {
-                        int p = slot.getMaxStackSize(itemStack5);
-                        if (itemStack5.getCount() > p) {
-                            slot.setByPlayer(itemStack5.split(p));
+                        int maxStackSize = slot.getMaxStackSize(itemStack5);
+                        if (itemStack5.getCount() > maxStackSize) {
+                            slot.setByPlayer(itemStack5.split(maxStackSize));
                         } else {
                             inventory.setItem(button, ItemStack.EMPTY);
                             slot.setByPlayer(itemStack5);
                         }
                     }
                 } else if (slot.mayPickup(player) && slot.mayPlace(itemStack5)) {
-                    int p = slot.getMaxStackSize(itemStack5);
-                    if (itemStack5.getCount() > p) {
-                        slot.setByPlayer(itemStack5.split(p));
+                    int maxStackSize = slot.getMaxStackSize(itemStack5);
+                    if (itemStack5.getCount() > maxStackSize) {
+                        slot.setByPlayer(itemStack5.split(maxStackSize));
                         slot.onTake(player, itemStack);
                         if (!inventory.add(itemStack)) {
                             LimitlessContainerUtils.drop(player, itemStack, true);
                         }
-                    } else {
+                        // only swap when the item stack can fit the inventory
+                    } else if (itemStack.getCount() <= inventory.getMaxStackSize(itemStack)) {
                         inventory.setItem(button, itemStack);
                         slot.setByPlayer(itemStack5);
                         slot.onTake(player, itemStack);
                     }
                 }
             }
-        } else if (clickType == ClickType.CLONE && player.hasInfiniteMaterials() && this.getCarried().isEmpty() && slotId >= 0) {
+        } else if (clickType == ClickType.CLONE && player.hasInfiniteMaterials() && this.getCarried().isEmpty()
+                && slotId >= 0) {
             Slot slot3 = this.slots.get(slotId);
             if (slot3.hasItem()) {
                 ItemStack itemStack2 = slot3.getItem();
@@ -229,14 +244,18 @@ public abstract class LimitlessContainerMenu extends AbstractContainerMenu {
 
                 for (int o = 0; o < 2; o++) {
 //                    for (int q = k; q >= 0 && q < this.slots.size() && itemStack2.getCount() < itemStack2.getMaxStackSize(); q += p) {
-                    for (int q = k; q >= 0 && q < this.slots.size() && itemStack2.getCount() < this.slots.get(q).getMaxStackSize(itemStack2); q += p) {
+                    for (int q = k; q >= 0 && q < this.slots.size() && itemStack2.getCount() < this.slots.get(q)
+                            .getMaxStackSize(itemStack2); q += p) {
                         Slot slot4 = this.slots.get(q);
-                        if (slot4.hasItem() && LimitlessContainerUtils.canItemQuickReplace(slot4, itemStack2, true) && slot4.mayPickup(player) && this.canTakeItemForPickAll(itemStack2, slot4)) {
+                        if (slot4.hasItem() && LimitlessContainerUtils.canItemQuickReplace(slot4, itemStack2, true)
+                                && slot4.mayPickup(player) && this.canTakeItemForPickAll(itemStack2, slot4)) {
                             ItemStack itemStack6 = slot4.getItem();
 //                            if (o != 0 || itemStack6.getCount() != itemStack6.getMaxStackSize()) {
                             if (o != 0 || itemStack6.getCount() != slot4.getMaxStackSize(itemStack6)) {
 //                                ItemStack itemStack7 = slot4.safeTake(itemStack6.getCount(), itemStack2.getMaxStackSize() - itemStack2.getCount(), player);
-                                ItemStack itemStack7 = slot4.safeTake(itemStack6.getCount(), slot4.getMaxStackSize(itemStack2) - itemStack2.getCount(), player);
+                                ItemStack itemStack7 = slot4.safeTake(itemStack6.getCount(),
+                                        slot4.getMaxStackSize(itemStack2) - itemStack2.getCount(),
+                                        player);
                                 itemStack2.grow(itemStack7.getCount());
                             }
                         }

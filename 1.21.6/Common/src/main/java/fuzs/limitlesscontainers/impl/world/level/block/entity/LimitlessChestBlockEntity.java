@@ -7,10 +7,8 @@ import fuzs.limitlesscontainers.impl.world.inventory.LimitlessChestMenu;
 import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
 import fuzs.puzzleslib.api.container.v1.ListBackedContainer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,6 +20,8 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ChestLidController;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class LimitlessChestBlockEntity extends ChestBlockEntity implements TickingBlockEntity {
     public static final int CONTAINER_SIZE = 54;
@@ -58,18 +58,16 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.items.clear();
-        LimitlessContainerUtils.loadAllItems(tag, this.items, registries);
+    public void loadAdditional(ValueInput valueInput) {
+        super.loadAdditional(valueInput);
+        LimitlessContainerUtils.loadAllItems(valueInput, this.items);
 
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.remove("Items");
-        LimitlessContainerUtils.saveAllItems(tag, this.items, true, registries);
+    protected void saveAdditional(ValueOutput valueOutput) {
+        super.saveAdditional(valueOutput);
+        LimitlessContainerUtils.saveAllItems(valueOutput, this.items);
     }
 
     @Override

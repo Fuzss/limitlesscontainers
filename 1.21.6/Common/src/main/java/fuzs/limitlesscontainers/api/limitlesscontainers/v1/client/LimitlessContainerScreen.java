@@ -8,16 +8,16 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
 
 import java.util.List;
 
@@ -39,8 +39,6 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
 
     @Override
     protected void renderFloatingItem(GuiGraphics guiGraphics, ItemStack itemStack, int x, int y, @Nullable String string) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0.0F, 0.0F, 232.0F);
         guiGraphics.renderItem(itemStack, x, y);
         AdvancedItemRenderer.renderItemDecorations(guiGraphics,
                 this.font,
@@ -48,7 +46,6 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                 x,
                 y - (this.draggingItem.isEmpty() ? 0 : 8),
                 string);
-        guiGraphics.pose().popPose();
     }
 
     @Override
@@ -88,12 +85,10 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
             }
         }
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
         if (itemStack.isEmpty() && slot.isActive()) {
             ResourceLocation resourceLocation = slot.getNoItemIcon();
             if (resourceLocation != null) {
-                guiGraphics.blitSprite(RenderType::guiTextured, resourceLocation, i, j, 16, 16);
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, resourceLocation, i, j, 16, 16);
                 bl2 = true;
             }
         }
@@ -112,8 +107,6 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
 
             AdvancedItemRenderer.renderItemDecorations(guiGraphics, this.font, itemStack, i, j, string);
         }
-
-        guiGraphics.pose().popPose();
     }
 
     private void recalculateQuickCraftRemaining(Slot slot) {
@@ -148,8 +141,8 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                     if (slot != this.clickedSlot && !this.clickedSlot.getItem().isEmpty()) {
                         this.draggingItem = this.clickedSlot.getItem().copy();
                     }
-                } else if (this.draggingItem.getCount() > 1 && slot != null &&
-                        LimitlessContainerUtils.canItemQuickReplace(slot, this.draggingItem, false)) {
+                } else if (this.draggingItem.getCount() > 1 && slot != null
+                        && LimitlessContainerUtils.canItemQuickReplace(slot, this.draggingItem, false)) {
                     long l = Util.getMillis();
                     if (this.quickdropSlot == slot) {
                         if (l - this.quickdropTime > 500L) {
@@ -165,10 +158,10 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                     }
                 }
             }
-        } else if (this.isQuickCrafting && slot != null && !itemStack.isEmpty() &&
-                (itemStack.getCount() > this.quickCraftSlots.size() || this.quickCraftingType == 2) &&
-                LimitlessContainerUtils.canItemQuickReplace(slot, itemStack, true) && slot.mayPlace(itemStack) &&
-                this.menu.canDragTo(slot)) {
+        } else if (this.isQuickCrafting && slot != null && !itemStack.isEmpty() && (
+                itemStack.getCount() > this.quickCraftSlots.size() || this.quickCraftingType == 2)
+                && LimitlessContainerUtils.canItemQuickReplace(slot, itemStack, true) && slot.mayPlace(itemStack)
+                && this.menu.canDragTo(slot)) {
             this.quickCraftSlots.add(slot);
             this.recalculateQuickCraftRemaining(slot);
         }
@@ -195,9 +188,11 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
             if (hasShiftDown()) {
                 if (!this.lastQuickMoved.isEmpty()) {
                     for (Slot slot2 : this.menu.slots) {
-                        if (slot2 != null && slot2.mayPickup(this.minecraft.player) && slot2.hasItem() &&
-                                slot2.container == slot.container &&
-                                LimitlessContainerUtils.canItemQuickReplace(slot2, this.lastQuickMoved, true)) {
+                        if (slot2 != null && slot2.mayPickup(this.minecraft.player) && slot2.hasItem()
+                                && slot2.container == slot.container && LimitlessContainerUtils.canItemQuickReplace(
+                                slot2,
+                                this.lastQuickMoved,
+                                true)) {
                             this.slotClicked(slot2, slot2.index, button, ClickType.QUICK_MOVE);
                         }
                     }
@@ -232,21 +227,19 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                         this.slotClicked(this.clickedSlot, this.clickedSlot.index, button, ClickType.PICKUP);
                         this.slotClicked(slot, k, 0, ClickType.PICKUP);
                         if (this.menu.getCarried().isEmpty()) {
-                            this.snapbackItem = ItemStack.EMPTY;
+                            this.snapbackData = null;
                         } else {
                             this.slotClicked(this.clickedSlot, this.clickedSlot.index, button, ClickType.PICKUP);
-                            this.snapbackStartX = Mth.floor(mouseX - i);
-                            this.snapbackStartY = Mth.floor(mouseY - j);
-                            this.snapbackEnd = this.clickedSlot;
-                            this.snapbackItem = this.draggingItem;
-                            this.snapbackTime = Util.getMillis();
+                            this.snapbackData = new AbstractContainerScreen.SnapbackData(this.draggingItem,
+                                    new Vector2i((int) mouseX, (int) mouseY),
+                                    new Vector2i(this.clickedSlot.x + i, this.clickedSlot.y + j),
+                                    Util.getMillis());
                         }
                     } else if (!this.draggingItem.isEmpty()) {
-                        this.snapbackStartX = Mth.floor(mouseX - i);
-                        this.snapbackStartY = Mth.floor(mouseY - j);
-                        this.snapbackEnd = this.clickedSlot;
-                        this.snapbackItem = this.draggingItem;
-                        this.snapbackTime = Util.getMillis();
+                        this.snapbackData = new AbstractContainerScreen.SnapbackData(this.draggingItem,
+                                new Vector2i((int) mouseX, (int) mouseY),
+                                new Vector2i(this.clickedSlot.x + i, this.clickedSlot.y + j),
+                                Util.getMillis());
                     }
 
                     this.clearDraggingState();
@@ -272,9 +265,9 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
                 if (this.minecraft.options.keyPickItem.matchesMouse(button)) {
                     this.slotClicked(slot, k, button, ClickType.CLONE);
                 } else {
-                    boolean bl2 = k != -999 &&
-                            (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340) ||
-                                    InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344));
+                    boolean bl2 =
+                            k != -999 && (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 340)
+                                    || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 344));
                     if (bl2) {
                         this.lastQuickMoved = slot != null && slot.hasItem() ? slot.getItem().copy() : ItemStack.EMPTY;
                     }
