@@ -1,10 +1,9 @@
 package fuzs.limitlesscontainers.impl.world.level.block;
 
-import fuzs.limitlesscontainers.impl.LimitlessContainers;
+import fuzs.limitlesscontainers.impl.init.ModRegistry;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.block.v1.entity.TickingEntityBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
@@ -33,11 +32,12 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             MenuProvider menuProvider = this.getMenuProvider(state, level, pos);
             if (menuProvider != null) {
                 player.openMenu(menuProvider);
             }
+
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.SUCCESS;
@@ -64,7 +64,6 @@ public class LimitlessChestBlock extends EnderChestBlock implements TickingEntit
 
     @Override
     public BlockEntityType<? extends LimitlessChestBlockEntity> getBlockEntityType() {
-        return (BlockEntityType<? extends LimitlessChestBlockEntity>) BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(
-                LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER);
+        return ModRegistry.LIMITLESS_CHEST_BLOCK_ENTITY_TYPE.value();
     }
 }

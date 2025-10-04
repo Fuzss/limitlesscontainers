@@ -17,8 +17,6 @@ transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractC
 transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	quickCraftingButton	I
 transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	skipNextRelease	Z
 transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	quickCraftingRemainder	I
-transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	lastClickTime	J
-transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	lastClickButton	I
 transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	doubleclick	Z
 transitive-accessible	field	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	lastQuickMoved	Lnet/minecraft/world/item/ItemStack;
 transitive-extendable	method	net/minecraft/client/gui/screens/inventory/AbstractContainerScreen	renderFloatingItem	(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V

@@ -2,29 +2,32 @@ package fuzs.limitlesscontainers.impl.world.level.block.entity;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerUtils;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedContainer;
-import fuzs.limitlesscontainers.impl.LimitlessContainers;
+import fuzs.limitlesscontainers.impl.init.ModRegistry;
 import fuzs.limitlesscontainers.impl.world.inventory.LimitlessChestMenu;
 import fuzs.puzzleslib.api.block.v1.entity.TickingBlockEntity;
+import fuzs.puzzleslib.api.container.v1.ContainerMenuHelper;
 import fuzs.puzzleslib.api.container.v1.ListBackedContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.ChestLidController;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
+import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class LimitlessChestBlockEntity extends ChestBlockEntity implements TickingBlockEntity {
+public class LimitlessChestBlockEntity extends NamedBlockEntity implements LidBlockEntity, TickingBlockEntity {
     public static final int CONTAINER_SIZE = 54;
+    private static final Component DEFAULT_NAME = Component.translatable("container.chest");
 
     private final ContainerOpenersCounter openersCounter = new NetherChestOpenersCounter();
     private final ChestLidController chestLidController = new ChestLidController();
@@ -32,9 +35,7 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     private final NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
 
     public LimitlessChestBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER),
-                blockPos,
-                blockState);
+        super(ModRegistry.LIMITLESS_CHEST_BLOCK_ENTITY_TYPE.value(), blockPos, blockState);
     }
 
     @Override
@@ -61,13 +62,27 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
     public void loadAdditional(ValueInput valueInput) {
         super.loadAdditional(valueInput);
         LimitlessContainerUtils.loadAllItems(valueInput, this.items);
-
     }
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
         LimitlessContainerUtils.saveAllItems(valueOutput, this.items);
+    }
+
+    @Override
+    protected Component getDefaultName() {
+        return DEFAULT_NAME;
+    }
+
+    @Override
+    protected NonNullList<ItemStack> getItems() {
+        return this.items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> items) {
+        ContainerMenuHelper.copyItemsIntoList(items, this.items);
     }
 
     @Override
@@ -82,7 +97,6 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         return new LimitlessChestMenu(containerId, inventory, this.container);
     }
 
-    @Override
     public void recheckOpen() {
         if (!this.remove) {
             this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
@@ -97,19 +111,20 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         }
 
         @Override
-        public void startOpen(Player player) {
-            if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
-                LimitlessChestBlockEntity.this.openersCounter.incrementOpeners(player,
+        public void startOpen(ContainerUser containerUser) {
+            if (!LimitlessChestBlockEntity.this.remove && !containerUser.getLivingEntity().isSpectator()) {
+                LimitlessChestBlockEntity.this.openersCounter.incrementOpeners(containerUser.getLivingEntity(),
                         LimitlessChestBlockEntity.this.getLevel(),
                         LimitlessChestBlockEntity.this.getBlockPos(),
-                        LimitlessChestBlockEntity.this.getBlockState());
+                        LimitlessChestBlockEntity.this.getBlockState(),
+                        containerUser.getContainerInteractionRange());
             }
         }
 
         @Override
-        public void stopOpen(Player player) {
-            if (!LimitlessChestBlockEntity.this.remove && !player.isSpectator()) {
-                LimitlessChestBlockEntity.this.openersCounter.decrementOpeners(player,
+        public void stopOpen(ContainerUser containerUser) {
+            if (!LimitlessChestBlockEntity.this.remove && !containerUser.getLivingEntity().isSpectator()) {
+                LimitlessChestBlockEntity.this.openersCounter.decrementOpeners(containerUser.getLivingEntity(),
                         LimitlessChestBlockEntity.this.getLevel(),
                         LimitlessChestBlockEntity.this.getBlockPos(),
                         LimitlessChestBlockEntity.this.getBlockState());
@@ -159,7 +174,7 @@ public class LimitlessChestBlockEntity extends ChestBlockEntity implements Ticki
         }
 
         @Override
-        protected boolean isOwnContainer(Player player) {
+        public boolean isOwnContainer(Player player) {
             if (player.containerMenu instanceof LimitlessChestMenu netherChestMenu) {
                 return netherChestMenu.getContainer() == LimitlessChestBlockEntity.this.container;
             } else {

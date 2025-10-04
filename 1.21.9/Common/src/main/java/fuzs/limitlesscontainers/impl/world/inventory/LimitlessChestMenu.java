@@ -4,10 +4,9 @@ import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerMen
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedContainer;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSimpleContainer;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSlot;
-import fuzs.limitlesscontainers.impl.LimitlessContainers;
+import fuzs.limitlesscontainers.impl.init.ModRegistry;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
 import fuzs.puzzleslib.api.container.v1.ContainerMenuHelper;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +22,7 @@ public class LimitlessChestMenu extends LimitlessContainerMenu {
     }
 
     public LimitlessChestMenu(int containerId, Inventory inventory, MultipliedContainer container) {
-        super(BuiltInRegistries.MENU.getValue(LimitlessContainers.LIMITLESS_CHEST_IDENTIFIER), containerId);
+        super(ModRegistry.LIMITLESS_CHEST_MENU.value(), containerId);
         checkContainerSize(container, this.containerRows * 9);
         this.container = container;
         container.startOpen(inventory.player);
