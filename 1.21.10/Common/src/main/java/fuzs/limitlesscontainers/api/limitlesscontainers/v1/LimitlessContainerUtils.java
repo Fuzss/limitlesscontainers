@@ -32,11 +32,11 @@ import java.util.Set;
 
 public class LimitlessContainerUtils {
     /**
-     * @see ItemStack#SINGLE_ITEM_CODEC
+     * @see ItemStack#MAP_CODEC
      */
     public static final MapCodec<ItemStack> ITEM_STACK_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Item.CODEC.fieldOf("id").forGetter(ItemStack::getItemHolder),
-            ExtraCodecs.POSITIVE_INT.fieldOf("Count").forGetter(ItemStack::getCount),
+            ExtraCodecs.POSITIVE_INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount),
             DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY)
                     .forGetter(ItemStack::getComponentsPatch)).apply(instance, ItemStack::new));
     /**
