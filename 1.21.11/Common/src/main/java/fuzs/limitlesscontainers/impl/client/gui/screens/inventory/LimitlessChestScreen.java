@@ -1,19 +1,19 @@
 package fuzs.limitlesscontainers.impl.client.gui.screens.inventory;
 
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.client.LimitlessContainerScreen;
-import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class LimitlessChestScreen<T extends AbstractContainerMenu> extends LimitlessContainerScreen<T> {
-    private static final ResourceLocation CONTAINER_BACKGROUND = ResourceLocationHelper.withDefaultNamespace(
+    private static final Identifier CONTAINER_BACKGROUND = Identifier.withDefaultNamespace(
             "textures/gui/container/generic_54.png");
 
     private final int containerRows;

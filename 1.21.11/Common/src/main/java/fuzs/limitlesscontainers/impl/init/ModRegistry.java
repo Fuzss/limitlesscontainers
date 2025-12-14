@@ -28,13 +28,13 @@ public class ModRegistry {
             "limitless_chest");
 
     public static void bootstrap() {
-        REGISTRIES.registerBlock(LIMITLESS_CHEST_BLOCK.key().location().getPath(),
+        REGISTRIES.registerBlock(LIMITLESS_CHEST_BLOCK.key().identifier().getPath(),
                 LimitlessChestBlock::new,
                 () -> BlockBehaviour.Properties.ofFullCopy(Blocks.ENDER_CHEST));
         REGISTRIES.registerBlockItem(LIMITLESS_CHEST_BLOCK);
-        REGISTRIES.registerBlockEntityType(LIMITLESS_CHEST_BLOCK_ENTITY_TYPE.key().location().getPath(),
+        REGISTRIES.registerBlockEntityType(LIMITLESS_CHEST_BLOCK_ENTITY_TYPE.key().identifier().getPath(),
                 LimitlessChestBlockEntity::new,
                 LIMITLESS_CHEST_BLOCK);
-        REGISTRIES.registerMenuType(LIMITLESS_CHEST_MENU.key().location().getPath(), LimitlessChestMenu::new);
+        REGISTRIES.registerMenuType(LIMITLESS_CHEST_MENU.key().identifier().getPath(), LimitlessChestMenu::new);
     }
 }

@@ -3,20 +3,20 @@ package fuzs.limitlesscontainers.api.limitlesscontainers.v1.client;
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.LimitlessContainerUtils;
 import fuzs.limitlesscontainers.impl.client.gui.AdvancedItemRenderer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
     }
 
     @Override
-    protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+    protected void renderSlot(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY) {
         int i = slot.x;
         int j = slot.y;
         ItemStack itemStack = slot.getItem();
@@ -85,9 +85,9 @@ public abstract class LimitlessContainerScreen<T extends AbstractContainerMenu> 
         }
 
         if (itemStack.isEmpty() && slot.isActive()) {
-            ResourceLocation resourceLocation = slot.getNoItemIcon();
-            if (resourceLocation != null) {
-                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, resourceLocation, i, j, 16, 16);
+            Identifier identifier = slot.getNoItemIcon();
+            if (identifier != null) {
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, identifier, i, j, 16, 16);
                 bl2 = true;
             }
         }

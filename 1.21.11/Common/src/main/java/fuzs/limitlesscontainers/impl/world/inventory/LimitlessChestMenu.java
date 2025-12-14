@@ -6,7 +6,6 @@ import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSimpleConta
 import fuzs.limitlesscontainers.api.limitlesscontainers.v1.MultipliedSlot;
 import fuzs.limitlesscontainers.impl.init.ModRegistry;
 import fuzs.limitlesscontainers.impl.world.level.block.entity.LimitlessChestBlockEntity;
-import fuzs.puzzleslib.api.container.v1.ContainerMenuHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +26,7 @@ public class LimitlessChestMenu extends LimitlessContainerMenu {
         this.container = container;
         container.startOpen(inventory.player);
         this.addContainerSlots(container);
-        ContainerMenuHelper.addInventorySlots(this, inventory, 103 + (this.containerRows - 4) * 18);
+        this.addStandardInventorySlots(inventory, 8, 103 + (this.containerRows - 4) * 18);
     }
 
     private void addContainerSlots(MultipliedContainer container) {

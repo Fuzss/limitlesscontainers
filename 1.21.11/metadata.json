@@ -1,0 +1,51 @@
+{
+    "mod": {
+        "id": "limitlesscontainers",
+        "group": "fuzs.limitlesscontainers",
+        "name": "Limitless Containers",
+        "version": "21.11.0",
+        "authors": [
+            "Fuzs"
+        ],
+        "description": "A library for creating container menus with a custom item stack size limit.",
+        "license": "MPL-2.0"
+    },
+    "dependencies": [
+        {
+            "name": "fabricapi",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "forgeconfigapiport",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "puzzleslib",
+            "type": "required",
+            "platforms": [
+                "fabric",
+                "neoforge"
+            ]
+        }
+    ],
+    "links": [
+        {
+            "name": "github",
+            "slug": "limitlesscontainers"
+        }
+    ],
+    "environments": {
+        "client": "required",
+        "server": "required"
+    },
+    "platforms": [
+        "fabric",
+        "neoforge"
+    ]
+}
