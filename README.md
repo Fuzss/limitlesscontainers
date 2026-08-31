@@ -4,7 +4,7 @@
 
 | Branch | Status | Changelog | Maven |
 | --- | --- | --- | --- |
-| [26.1.x](https://github.com/Fuzss/limitless-containers/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/limitless-containers/blob/26.1.x/CHANGELOG.md) | [`fuzs.limitlesscontainers:limitlesscontainers-common:21.11.0`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-common/21.11.0)<br />[`fuzs.limitlesscontainers:limitlesscontainers-fabric:21.11.0`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-fabric/21.11.0)<br />[`fuzs.limitlesscontainers:limitlesscontainers-neoforge:21.11.0`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-neoforge/21.11.0) |
+| [26.1.x](https://github.com/Fuzss/limitless-containers/tree/26.1.x) | ✅&nbsp;Primary | [CHANGELOG.md](https://github.com/Fuzss/limitless-containers/blob/26.1.x/CHANGELOG.md) | [`fuzs.limitlesscontainers:limitlesscontainers-common:26.1.1`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-common/26.1.1)<br />[`fuzs.limitlesscontainers:limitlesscontainers-fabric:26.1.1`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-fabric/26.1.1)<br />[`fuzs.limitlesscontainers:limitlesscontainers-neoforge:26.1.1`](https://github.com/Fuzss/modresources/tree/main/maven/fuzs/limitlesscontainers/limitlesscontainers-neoforge/26.1.1) |
 
 ### Minecraft 1.21.x
 
